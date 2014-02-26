@@ -17,3 +17,11 @@ The third function of replying with a random reply read from an additional text 
 Pranks are fun, but please don't use this bot for evil. Evil, I will loosely describe as spamming people you don't know, and/or scaring people into thinking they have a stalker.
 
 You will need to use a cronjob to get the bot to post automatically. The bot is programmed to not post between midnight and 8 am PST, if on a server se to UTC. Otherwise, this time will need to be adjusted.
+
+To get this code to work, you will need te following text files:
+1. A hobbies file with a list of hobbies
+2. A last tweeted file which will start blank
+3. A list of people for the twitterbot to favorite and retweet things of
+4. A list of possible responses
+
+Additionally, you will need a yaml file withe your twitter configurations.

@@ -14,13 +14,16 @@ class Kathy
 
     @topic = File.read(hobbies).split("\n").sample
     @recent_tweet = last_time(last_thought)
-    @stop_list = File.read(hobbies).split("\n")
-    @to_be_tweeted = filter_tweets(get_some_tweets)
+    
     sleep(rand(25..130))
+
+    @to_be_tweeted = filter_tweets(get_some_tweets)
+
     maybe_do_stuff(target, fave, retweet, tweet)
     response(target, response_percent)
     secondstring(secondlist)
     update_last_tweet(last_thought)
+
   end
 
   def percent_chance(x)
