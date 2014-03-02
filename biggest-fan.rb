@@ -13,10 +13,9 @@ class Kathy
     end
 
     @topic = File.read(hobbies).split("\n").sample
-    @recent_tweet = last_time(last_thought)
-    
-    sleep(rand(25..130))
+    sleep(rand(250..1300))
 
+    @recent_tweet = last_time(last_thought)
     @to_be_tweeted = filter_tweets(get_some_tweets)
 
     maybe_do_stuff(target, fave, retweet, tweet)
@@ -55,7 +54,7 @@ class Kathy
 
   #returns an array of undesirable words
   def bad_words
-    File.read(badwords.txt).split("\n")
+    File.read('badwords.txt').split("\n")
   end
 
   #Checks for undesirable words in tweets
@@ -114,17 +113,21 @@ class Kathy
   def secondstring(secondlist)
     other = File.read(secondlist).split("\n")
     other.each do |person|
-      maybe_do_stuff(person, 3, 1, 0)
+      begin
+        maybe_do_stuff(person, 3, 1, 0)
+      rescue
+        puts "This account doesn't exist"
+      end
     end
   end
 
   def response(who, response_percent)
-    selected_response = File.read('responses.yml').split("\n").sample
-    directed_response = "@#{who} " + selected_response
     tweets = get_targets_tweets(who)
     if tweets.length >= 1
       tweets.each do |t|
         if percent_chance(response_percent)
+          selected_response = File.read('responses.yml').split("\n").sample
+          directed_response = "@#{who} " + selected_response
           @client.update(directed_response, :in_reply_to_status_id => t.id)
         end
       end
