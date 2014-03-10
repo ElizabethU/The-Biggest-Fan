@@ -29,7 +29,7 @@ class Kathy
     rand(1..100) <= x
   end
 
-  #Kathy will not tweet if it is between midnught and 8 am on her remote server
+  #Kathy will not tweet if it is between midnight and 8 am on her remote server
   def wakey_wakey
     Time.now.strftime('%k').to_i <= 8 || Time.now.strftime('%k').to_i >= 16
   end 
@@ -91,14 +91,10 @@ class Kathy
     tweets = get_targets_tweets(who)
     tweets.each do |t|
       if percent_chance(fave_chance)
-        unless t.favorited
-          @client.favorite!(t)
-        end
+        @client.favorite!(t) unless t.favorited
       end
       if percent_chance(retweet_chance)
-        unless t.retweeted
-          @client.retweet!(t)
-        end
+        @client.retweet!(t) unless t.retweeted
       end
     end
   end
