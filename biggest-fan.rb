@@ -21,7 +21,7 @@ class Kathy
     @to_be_tweeted = filter_tweets(get_some_tweets)
 
     if wakey_wakey
-      maybe_do_stuff(target)
+      interact(target, @odds[:fave], @odds[:retweet], @odds[:tweet])
       response(target)
       secondstring(secondlist)
     end
@@ -35,6 +35,35 @@ class Kathy
   end 
 
   private
+
+  def create_twitter_client(config_hash)
+    Twitter::REST::Client.new do |config|
+      config.consumer_key        = config_hash['consumer_key']
+      config.consumer_secret     = config_hash['consumer_secret']
+      config.access_token        = config_hash['access_token']
+      config.access_token_secret = config_hash['access_token_secret']
+    end
+  end
+
+  # last tweet Kathy thought about, or last thing she said, if not.
+  def last_time(last_thought)
+    last_thoughts_file = File.read(last_thought).strip
+
+    if last_thoughts_file.length > 0
+      last_thoughts_file 
+    else 
+      @client.user_timeline(@client.user.screen_name).first.id
+    end
+  end
+
+  # searches tweets for likely tweets
+  def get_some_tweets
+    tweet_array = []
+    @client.search("#{@topic} -rt", {:lang => "en", :since_id => @recent_tweet, :result_type => "recent"}).each do |t|
+      tweet_array << t
+    end
+    tweet_array
+  end
 
   def percent_chance(x)
     rand(1..100) <= x
@@ -64,23 +93,49 @@ class Kathy
   end
 
   # TODO: maybe rename this?
-  def maybe_do_stuff(who)
-    fave_retweet(who)
+  def interact(who, fave_chance = 8, retweet_chance = 3, tweet_chance = 0)
+    fave_retweet(who, fave_chance, retweet_chance)
 
-    if percent_chance(tweet)
+    if percent_chance(tweet_chance)
       @client.update("#{@to_be_tweeted.text.downcase}")
     end
   end
 
   # Favorites and retweets primary target
-  def fave_retweet(who)
+  def fave_retweet(who, fave_chance, retweet_chance)
     get_targets_tweets(who).each do |t|
       if percent_chance(@odds[:fave]) && !t.favorited
         @client.favorite!(t)
       end
-    
+
       if percent_chance(@odds[:retweet]) && !t.retweeted
         @client.retweet!(t)
+      end
+    end
+  end
+
+  def secondstring(secondlist)
+    other = File.read(secondlist).split("\n")
+
+    other.each do |person|
+      begin
+        interact(person)
+      rescue
+        puts "Something went wrong, probably, you've found an account that doesn't exist"
+      end
+    end
+  end
+
+  def response(who)
+    tweets = get_targets_tweets(who)
+    if tweets.length == 0
+      return
+    end
+    tweets.each do |tweet|
+      if percent_chance(@odds[:response_percent])
+        selected_response = File.read('responses.yml').split("\n").sample
+        directed_response = "@#{who} " + selected_response
+        @client.update(directed_response, :in_reply_to_status_id => tweet.id)
       end
     end
   end
@@ -90,59 +145,5 @@ class Kathy
     open(last_thought, 'r+') { |f|
       f.puts "#{@to_be_tweeted.id}"
     }
-  end
-
-  def secondstring(secondlist)
-    other = File.read(secondlist).split("\n")
-
-    other.each do |person|
-      begin
-        maybe_do_stuff(person)
-      rescue
-        puts "This account doesn't exist"
-      end
-    end
-  end
-
-  def response(who)
-    tweets = get_targets_tweets(who)
-    if tweets.length >= 1
-      tweets.each do |t|
-        if percent_chance(@odds[:response_percent])
-          selected_response = File.read('responses.yml').split("\n").sample
-          directed_response = "@#{who} " + selected_response
-          @client.update(directed_response, :in_reply_to_status_id => t.id)
-        end
-      end
-    end
-  end
-
-  def create_twitter_client(config_hash)
-    Twitter::REST::Client.new do |config|
-      config.consumer_key        = config_hash['consumer_key']
-      config.consumer_secret     = config_hash['consumer_secret']
-      config.access_token        = config_hash['access_token']
-      config.access_token_secret = config_hash['access_token_secret']
-    end
-  end
-
-  # last tweet Kathy thought about, or last thing she said, if not.
-  def last_time(last_thought)
-    last_thoughts_file = File.read(last_thought).strip
-
-    if last_thoughts_file.length > 0
-      last_thoughts_file 
-    else 
-      @client.user_timeline("katherynebutler").first.id
-    end
-  end
-
-  # searches tweets for likely tweets
-  def get_some_tweets
-    tweet_array = []
-    @client.search("#{@topic} -rt", {:lang => "en", :since_id => @recent_tweet, :result_type => "recent"}).each do |t|
-      tweet_array << t
-    end
-    tweet_array
   end
 end
