@@ -15,13 +15,14 @@ class Kathy
   end
 
   def and_go!(secondlist, last_thought, target)
-    sleep(rand(250..1300))
+    #sleep(rand(250..1300))
 
     @recent_tweet  = last_time(last_thought)
     @to_be_tweeted = filter_tweets(get_some_tweets)
 
     if wakey_wakey
-      interact(target, @odds[:fave], @odds[:retweet], @odds[:tweet])
+      fave_retweet(target, @odds[:fave], @odds[:retweet])
+      new_tweet(@odds[:tweet])
       response(target)
       secondstring(secondlist)
     end
@@ -92,37 +93,23 @@ class Kathy
     @client.user_timeline(who, since_id: @recent_tweet, include_rts: false)
   end
 
-  # TODO: maybe rename this?
-  def interact(who, fave_chance = 8, retweet_chance = 3, tweet_chance = 0)
-    fave_retweet(who, fave_chance, retweet_chance)
-
-    if percent_chance(tweet_chance)
-      @client.update("#{@to_be_tweeted.text.downcase}")
-    end
-  end
-
   # Favorites and retweets primary target
-  def fave_retweet(who, fave_chance, retweet_chance)
+  def fave_retweet(who, fave_chance = 8, retweet_chance = 3)
     get_targets_tweets(who).each do |t|
-      if percent_chance(@odds[:fave]) && !t.favorited
+      if percent_chance(fave_chance) && !t.favorited
         @client.favorite!(t)
       end
 
-      if percent_chance(@odds[:retweet]) && !t.retweeted
+      if percent_chance(retweet_chance) && !t.retweeted
         @client.retweet!(t)
       end
     end
   end
 
-  def secondstring(secondlist)
-    other = File.read(secondlist).split("\n")
-
-    other.each do |person|
-      begin
-        interact(person)
-      rescue
-        puts "Something went wrong, probably, you've found an account that doesn't exist"
-      end
+  #updates status
+  def new_tweet(tweet_chance)
+    if percent_chance(tweet_chance)
+      @client.update("#{@to_be_tweeted.text.downcase}")
     end
   end
 
@@ -136,6 +123,19 @@ class Kathy
         selected_response = File.read('responses.yml').split("\n").sample
         directed_response = "@#{who} " + selected_response
         @client.update(directed_response, :in_reply_to_status_id => tweet.id)
+      end
+    end
+  end
+
+  #other people being followed
+  def secondstring(secondlist)
+    other = File.read(secondlist).split("\n")
+
+    other.each do |person|
+      begin
+        fave_retweet(person)
+      rescue
+        puts "Something went wrong, probably, you've found an account that doesn't exist"
       end
     end
   end

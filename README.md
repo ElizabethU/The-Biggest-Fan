@@ -29,4 +29,6 @@ To get this code to work, you will need te following text files:
 
 4. A list of possible responses
 
+5. A list of words you want to censor. People say some awful things on twitter, and also you'll want to filter anything with pictures or directly talking to other users.
+
 Additionally, you will need a yaml file with your twitter configurations.
