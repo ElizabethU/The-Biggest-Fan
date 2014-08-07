@@ -15,7 +15,7 @@ class Kathy
   end
 
   def and_go!(secondlist, last_thought, target)
-    #sleep(rand(250..1300))
+    sleep(rand(250..2000))
 
     @recent_tweet  = last_time(last_thought)
     @to_be_tweeted = filter_tweets(get_some_tweets)
@@ -46,7 +46,7 @@ class Kathy
     end
   end
 
-  # last tweet Kathy thought about, or last thing she said, if not.
+  # last tweet Kathy thought about, or last thing she said.
   def last_time(last_thought)
     last_thoughts_file = File.read(last_thought).strip
 
