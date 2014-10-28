@@ -15,7 +15,7 @@ class Kathy
   end
 
   def and_go!(secondlist, last_thought, target)
-    sleep(rand(250..2000))
+    #sleep(rand(250..2000))
 
     @recent_tweet  = last_time(last_thought)
     @to_be_tweeted = filter_tweets(get_some_tweets)
@@ -100,7 +100,7 @@ class Kathy
         @client.favorite!(t)
       end
 
-      if percent_chance(retweet_chance) && !t.retweeted
+      if percent_chance(retweet_chance) && !t.retweeted && (t.text[0] != '@')
         @client.retweet!(t)
       end
     end
@@ -120,7 +120,7 @@ class Kathy
     end
     tweets.each do |tweet|
       if percent_chance(@odds[:response_percent])
-        selected_response = File.read('responses.yml').split("\n").sample
+        selected_response = File.read('responses.txt').split("\n").sample
         directed_response = "@#{who} " + selected_response
         @client.update(directed_response, :in_reply_to_status_id => tweet.id)
       end

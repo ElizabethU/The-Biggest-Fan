@@ -1,8 +1,11 @@
 Biggest Fan Bot
 ===============
 by Elizabeth Uselton
+
 The Author: [@lizuselton](https://twitter.com/lizuselton)
+
 The Bot in Action: [@katherynebutler](https://twitter.com/katherynebutler)
+
 Github: ElizabethU
 
 This project is a basic twitterbot I built to prank my classmates. The bot superficially appears to be a weird human who is really determined to be friends with you. It's kind of like the experience of being facebook friends with your parents. It is one of my first toy projects playing around with APIs. It has undergone minor refactoring. I hope to extract things into classes for further refactoring, as well as add new features.
